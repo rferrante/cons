@@ -6,27 +6,27 @@ import (
 )
 
 const (
-	start = "\033["
+	Start = "\033["
 	Reset = "\033[0m"
 )
 
 var (
 	plain  = false
 	colors = map[string][2]string{
-		"k": {"30", "40"},
-		"r": {"31", "41"},
-		"g": {"32", "42"},
-		"y": {"33", "43"},
-		"b": {"34", "44"},
-		"m": {"35", "45"},
-		"c": {"36", "46"},
-		"w": {"37", "47"},
+		"k": {"30", "40"}, // black
+		"r": {"31", "41"}, // red
+		"g": {"32", "42"}, // green
+		"y": {"33", "43"}, // yellow
+		"b": {"34", "44"}, // blue
+		"m": {"35", "45"}, // magenta
+		"c": {"36", "46"}, // cyan
+		"w": {"37", "47"}, // white
 	}
 	styles = map[string]string{
-		"b": "1",
-		"B": "5",
-		"u": "4",
-		"i": "7",
+		"b": "1", // bold
+		"B": "5", // blink
+		"u": "4", // underline
+		"i": "7", // italic
 	}
 	// Three diagnostics set after each call to Color()
 	// Tracers[0] is three indexes used in parsing the arg to Color():
@@ -55,7 +55,7 @@ type style_spec struct {
 	bg_style string
 }
 
-func (spec style_spec) get_string() string {
+func (spec style_spec) String() string {
 	var result string
 	result = append_code(result, spec.fg_color)
 	result = append_code(result, spec.fg_style)
@@ -114,13 +114,12 @@ func ColorCode(code string) string {
 	spec.bg_style = styles[spec.bg_style]
 	// get the ansi codes without the start and end escapes
 	// (useful for printing the codes without sending escapes)
-	codes := spec.get_string()
-	Tracers[2] = fmt.Sprintf("%s", codes)
+	Tracers[2] = fmt.Sprintf("%s", spec)
 
-	if len(codes) == 0 {
+	if len(spec.String()) == 0 {
 		return ""
 	}
-	return fmt.Sprintf("%s%sm", start, codes)
+	return fmt.Sprintf("%s%sm", Start, spec)
 }
 
 func resetIfNeeded(code string) string {
