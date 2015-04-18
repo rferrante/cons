@@ -2,6 +2,7 @@ package cons
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 )
 
@@ -66,8 +67,75 @@ func (spec style_spec) String() string {
 	return result
 }
 
+func IsValid(s string) bool {
+	rx := []string{"(?:^[krgbymcw]$)", "(?:^[bkuivf]$)"}
+	halves := strings.Split(s, ":")
+	for _, h := range halves {
+		if len(h) == 0 {
+			continue
+		}
+		quarters := strings.Split(h, "+")
+		rxIx := 0
+		for _, q := range quarters {
+			if len(q) == 0 {
+				rxIx++
+				continue
+			}
+			//fmt.Printf("pattern = %s\n", q)
+			match, err := regexp.MatchString(rx[rxIx], q)
+			if err != nil || !match {
+				return false
+			}
+			rxIx++
+		}
+	}
+	return true
+}
+
 // ColorCode returns the ansi control chars for coloring and styling console text
+// code should be in UTF-8
 func ColorCode(code string) string {
+	code = strings.ToLower(code)
+	if plain || code == "" {
+		return ""
+	}
+	if code == "reset" {
+		return Reset
+	}
+
+	var spec style_spec
+	var ptrs = []*string{&spec.fg_color, &spec.fg_style, &spec.bg_color, &spec.bg_style}
+	ptrIx := 0
+	for _, roon := range code {
+		switch string(roon) {
+		case ":":
+			ptrIx = 2
+		case "+":
+			ptrIx++
+		default:
+			*ptrs[ptrIx] = string(roon)
+		}
+	}
+	Tracers[1] = fmt.Sprintf("%s %s %s %s",
+		spec.fg_color, spec.fg_style, spec.bg_color, spec.bg_style)
+	// now map to the real styles
+	spec.fg_color = colors[spec.fg_color][0]
+	spec.fg_style = styles[spec.fg_style]
+	spec.bg_color = colors[spec.bg_color][1]
+	spec.bg_style = styles[spec.bg_style]
+	// get the ansi codes without the start and end escapes
+	// (useful for printing the codes without sending escapes)
+	Tracers[2] = fmt.Sprintf("%s", spec)
+
+	if len(spec.String()) == 0 {
+		return ""
+	}
+	return fmt.Sprintf("%s%sm", Start, spec)
+
+}
+
+// ColorCode returns the ansi control chars for coloring and styling console text
+func ColorCodex(code string) string {
 	if plain || code == "" {
 		return ""
 	}
