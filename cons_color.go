@@ -23,10 +23,12 @@ var (
 		"w": {"37", "47"}, // white
 	}
 	styles = map[string]string{
-		"b": "1", // bold
-		"B": "5", // blink
-		"u": "4", // underline
-		"i": "7", // italic
+		"b": "1",  // bold
+		"k": "5",  // blink
+		"u": "4",  // underline
+		"i": "3",  // italic
+		"v": "7",  // inverted
+		"f": "51", // framed
 	}
 	// Three diagnostics set after each call to Color()
 	// Tracers[0] is three indexes used in parsing the arg to Color():
