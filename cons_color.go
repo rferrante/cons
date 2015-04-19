@@ -69,24 +69,20 @@ func (spec style_spec) String() string {
 
 func IsValid(s string) bool {
 	rx := []string{"(?:^[krgbymcw]$)", "(?:^[bkuivf]$)"}
-	halves := strings.Split(s, ":")
-	for _, h := range halves {
-		if len(h) == 0 {
+	rxIx := 0
+	for ix, roon := range s {
+		switch roon {
+		case '.', '-', '_':
 			continue
 		}
-		quarters := strings.Split(h, "+")
-		rxIx := 0
-		for _, q := range quarters {
-			if len(q) == 0 {
-				rxIx++
-				continue
-			}
-			//fmt.Printf("pattern = %s\n", q)
-			match, err := regexp.MatchString(rx[rxIx], q)
-			if err != nil || !match {
-				return false
-			}
-			rxIx++
+		if ix == 1 {
+			rxIx = 1
+		} else {
+			rxIx = 0
+		}
+		match, err := regexp.MatchString(rx[rxIx], string(roon))
+		if err != nil || !match {
+			return false
 		}
 	}
 	return true
@@ -200,13 +196,18 @@ func DisableColors(disable bool) {
 }
 
 // convenience function
+func Prints(style, text string) {
+	fmt.Print(Style(style, text))
+}
+
+// convenience function
 func Printfs(style, format string, args ...interface{}) {
-	s := fmt.Sprintf(format, args)
+	s := fmt.Sprintf(format, args...)
 	fmt.Printf("%s", Style(style, s))
 }
 
 // convenience function
 func Sprintfs(style, format string, args ...interface{}) string {
-	s := fmt.Sprintf(format, args)
+	s := fmt.Sprintf(format, args...)
 	return Style(style, s)
 }

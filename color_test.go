@@ -28,16 +28,28 @@ func TestEmpty(t *testing.T) {
 }
 
 func TestBadEdgeCases(t *testing.T) {
+	fmt.Println("Bad cases...")
 	for _, b := range _BAD {
 		fmt.Printf("%4s (%s)\n", Color("Bad ", b), b)
 	}
 	t.Log("Example")
 }
 func TestGoodEdgeCases(t *testing.T) {
+	fmt.Println("Good cases...")
 	for _, g := range _GOOD {
 		fmt.Printf("%4s (%s)\n", Color("Good", g), g)
 	}
 	t.Log("Example")
+}
+
+func TestFormattedPrinting(t *testing.T) {
+	Printfs("ru", "%s and %s\n", "Some", "Some more")
+	Printfs("ru", "%d and %d\n", 27, 29)
+}
+
+func TestFlagged(t *testing.T) {
+	fmt.Println(StyleIf("bu", "Should be styled", true))
+	fmt.Println(StyleIf("bu", "Should NOT be styled", false))
 }
 
 func inspect(code string) string {
