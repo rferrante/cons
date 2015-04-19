@@ -63,7 +63,7 @@ func (spec style_spec) String() string {
 	result = append_code(result, spec.fg_color)
 	result = append_code(result, spec.fg_style)
 	result = append_code(result, spec.bg_color)
-	result = append_code(result, spec.bg_style)
+	//result = append_code(result, spec.bg_style)
 	return result
 }
 
@@ -104,13 +104,16 @@ func ColorCode(code string) string {
 	var ptrs = []*string{&spec.fg_color, &spec.fg_style, &spec.bg_color, &spec.bg_style}
 	ptrIx := 0
 	for _, roon := range code {
-		switch string(roon) {
-		case ":":
+		switch roon {
+		case ':':
 			ptrIx = 2
-		case "+":
-			ptrIx++
-		default:
+		case 'v', 'i', 'b', 'u', 'k', 'f', 'y', 'w', 'r', 'g', 'm', 'c':
 			*ptrs[ptrIx] = string(roon)
+			ptrIx++
+		case '+':
+			// do nothing, for backwards compatibility
+		default: // i.e., +, _, -, .
+			ptrIx++
 		}
 	}
 	Tracers[1] = fmt.Sprintf("%s %s %s %s",
@@ -129,6 +132,14 @@ func ColorCode(code string) string {
 	}
 	return fmt.Sprintf("%s%sm", Start, spec)
 
+}
+
+func Code2Ansi(code string) string {
+	code = strings.ToLower(code)
+	if plain || code == "" {
+		return ""
+	}
+	return "" // TODO
 }
 
 func resetIfNeeded(code string) string {
@@ -150,6 +161,14 @@ func Style(style string, s string) string {
 	return code + s + resetIfNeeded(code)
 }
 
+// if flag is false, returns s unchanged
+func StyleIf(style string, s string, flag bool) string {
+	if flag {
+		return Style(style, s)
+	}
+	return s
+}
+
 // ColorFunc Creates a fast closure.
 //
 // Prefer ColorFunc over Style, Printf etc. if you are concerned about performance
@@ -167,9 +186,13 @@ func ColorFunc(style string) func(string) string {
 	}
 }
 
+// convenience function vars
 var ShowRed = ColorFunc("r")
+var ShowBlue = ColorFunc("b")
+var ShowYellow = ColorFunc("y")
 var ShowMagenta = ColorFunc("m")
 var ShowGreen = ColorFunc("g")
+var ShowCyan = ColorFunc("c")
 
 // DisableColors disables ANSI color codes. On by default.
 func DisableColors(disable bool) {
@@ -177,13 +200,13 @@ func DisableColors(disable bool) {
 }
 
 // convenience function
-func Printf(style, format string, args ...interface{}) {
+func Printfs(style, format string, args ...interface{}) {
 	s := fmt.Sprintf(format, args)
-	fmt.Printf("%s", Color(s, style))
+	fmt.Printf("%s", Style(style, s))
 }
 
 // convenience function
-func Sprintf(style, format string, args ...interface{}) string {
+func Sprintfs(style, format string, args ...interface{}) string {
 	s := fmt.Sprintf(format, args)
-	return Color(s, style)
+	return Style(style, s)
 }
