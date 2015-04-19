@@ -96,10 +96,7 @@ func IsValid(s string) bool {
 // code should be in UTF-8
 func ColorCode(code string) string {
 	code = strings.ToLower(code)
-	if plain || code == "" {
-		return ""
-	}
-	if code == "reset" {
+	if plain || code == "" || code == "reset" {
 		return Reset
 	}
 
@@ -170,4 +167,8 @@ var ShowGreen = ColorFunc("g")
 // DisableColors disables ANSI color codes. On by default.
 func DisableColors(disable bool) {
 	plain = disable
+}
+
+func Printf(code, format string, args ...interface{}) {
+
 }
