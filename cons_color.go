@@ -139,14 +139,21 @@ func resetIfNeeded(code string) string {
 }
 
 // Color(s, style) Surrounds `s` with ANSI color and reset code.
+// deprecated, use Style instead
 func Color(s, style string) string {
+	code := ColorCode(style)
+	return code + s + resetIfNeeded(code)
+}
+
+func Style(style string, s string) string {
 	code := ColorCode(style)
 	return code + s + resetIfNeeded(code)
 }
 
 // ColorFunc Creates a fast closure.
 //
-// Prefer ColorFunc over Color as it does not recompute ANSI codes.
+// Prefer ColorFunc over Style, Printf etc. if you are concerned about performance
+// as it does not recompute ANSI codes.
 func ColorFunc(style string) func(string) string {
 	if style == "" {
 		return func(s string) string {
@@ -169,6 +176,14 @@ func DisableColors(disable bool) {
 	plain = disable
 }
 
-func Printf(code, format string, args ...interface{}) {
+// convenience function
+func Printf(style, format string, args ...interface{}) {
+	s := fmt.Sprintf(format, args)
+	fmt.Printf("%s", Color(s, style))
+}
 
+// convenience function
+func Sprintf(style, format string, args ...interface{}) string {
+	s := fmt.Sprintf(format, args)
+	return Color(s, style)
 }
