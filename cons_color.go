@@ -134,64 +134,6 @@ func ColorCode(code string) string {
 
 }
 
-// ColorCode returns the ansi control chars for coloring and styling console text
-func ColorCodex(code string) string {
-	if plain || code == "" {
-		return ""
-	}
-	if code == "reset" {
-		return Reset
-	}
-	var spec style_spec
-	ix_plus1 := strings.Index(code, "+")
-	ix_plus2 := strings.LastIndex(code, "+")
-	ix_colon := strings.Index(code, ":")
-	Tracers[0] = fmt.Sprintf("%d %d %d", ix_plus1, ix_colon, ix_plus2)
-
-	if ix_colon == -1 && ix_plus1 == -1 {
-		spec.fg_color = code
-	} else if ix_colon == -1 {
-		spec.fg_color = code[:ix_plus1]
-		spec.fg_style = code[ix_plus1+1 : len(code)]
-	} else if ix_plus1 == -1 {
-		spec.fg_color = code[:ix_colon]
-		spec.bg_color = code[ix_colon+1 : len(code)]
-	} else if ix_plus1 == ix_plus2 {
-		if ix_plus1 < ix_colon {
-			spec.fg_color = code[:ix_plus1]
-			spec.fg_style = code[ix_plus1+1 : ix_colon]
-			spec.bg_color = code[ix_colon+1 : len(code)]
-		} else {
-			spec.fg_color = code[:ix_colon]
-			spec.bg_color = code[ix_colon+1 : ix_plus1]
-			spec.bg_style = code[ix_plus1+1 : len(code)]
-		}
-	} else { // there is at least one colon and at least 2 plusses
-		if ix_plus1 < ix_colon && ix_colon < ix_plus2 {
-			spec.fg_color = code[:ix_plus1]
-			spec.fg_style = code[ix_plus1+1 : ix_colon]
-			spec.bg_color = code[ix_colon+1 : ix_plus2]
-			spec.bg_style = code[ix_plus2+1 : len(code)]
-		}
-	}
-	Tracers[1] = fmt.Sprintf("%s %s %s %s",
-		spec.fg_color, spec.fg_style, spec.bg_color, spec.bg_style)
-
-	// now map to the real styles
-	spec.fg_color = colors[spec.fg_color][0]
-	spec.fg_style = styles[spec.fg_style]
-	spec.bg_color = colors[spec.bg_color][1]
-	spec.bg_style = styles[spec.bg_style]
-	// get the ansi codes without the start and end escapes
-	// (useful for printing the codes without sending escapes)
-	Tracers[2] = fmt.Sprintf("%s", spec)
-
-	if len(spec.String()) == 0 {
-		return ""
-	}
-	return fmt.Sprintf("%s%sm", Start, spec)
-}
-
 func resetIfNeeded(code string) string {
 	if len(code) > 0 {
 		return Reset

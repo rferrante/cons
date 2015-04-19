@@ -5,6 +5,9 @@ import (
 	"testing"
 )
 
+const _GOOD []string = []string{"r", "b+b", "+u", "y+u", ":b", ":b+u", "w:b+u", "w:b", "w:m+v", "c+u:m+b"}
+const _BAD []string = []string{"x", "r,u", "r-u", "v", "v:r+u", "r:v", "y:y+y"}
+
 func TestEmpty(t *testing.T) {
 	fmt.Printf("%4s %4s %4s %4s\n%4s %4s %4s %4s\n",
 		Color("Test", "w"), Color("Red ", "r"), Color("Yell", "y"), Color("Gree", "g"),
@@ -35,14 +38,14 @@ func TestEmpty(t *testing.T) {
 
 func TestBadEdgeCases(t *testing.T) {
 	bad := []string{"x", "r,u", "r-u", "v", "v:r+u", "r:v", "y:y+y"}
-	for _, b := range bad {
+	for _, b := range _BAD {
 		fmt.Printf("%4s (%s)\n", Color("Bad ", b), b)
 	}
 	t.Log("Example")
 }
 func TestGoodEdgeCases(t *testing.T) {
 	good := []string{"r", "b+b", "+u", "y+u", ":b", ":b+u", "w:b+u", "w:b", "w:m+v", "c+u:m+b"}
-	for _, g := range good {
+	for _, g := range _GOOD {
 		fmt.Printf("%4s (%s)\n", Color("Good", g), g)
 	}
 	t.Log("Example")
@@ -64,14 +67,12 @@ func TestCodes(t *testing.T) {
 }
 
 func TestValidCodes(t *testing.T) {
-	good := []string{"r", "b+b", "+u", "y+u", ":b", ":b+u", "w:b+u", "w:b", "w:m+v", "c+u:m+b"}
-	bad := []string{"x", "r,u", "r-u", "v", "v:r+u", "r:v", "y:y+y"}
-	for _, g := range good {
+	for _, g := range _GOOD {
 		if !IsValid(g) {
 			t.Fatalf("IsValid failed a good pattern: %s", g)
 		}
 	}
-	for _, b := range bad {
+	for _, b := range _BAD {
 		if IsValid(b) {
 			t.Fatalf("IsValid passed a bad pattern: %s", b)
 		}
